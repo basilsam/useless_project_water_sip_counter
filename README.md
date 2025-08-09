@@ -1,102 +1,164 @@
-<img width="3188" height="1202" alt="frame (3)" src="https://github.com/user-attachments/assets/517ad8e9-ad22-457d-9538-a9e62d137cd7" />
 
 
-# [Project Name] 🎯
+# Water Sip Counter 🎯
 
-
-## Basic Details
-### Team Name: [Name]
-
-
-### Team Members
-- Team Lead: [Name] - [College]
-- Member 2: [Name] - [College]
-- Member 3: [Name] - [College]
-
-### Project Description
-[2-3 lines about what your project does]
-
-### The Problem (that doesn't exist)
-[What ridiculous problem are you solving?]
-
-### The Solution (that nobody asked for)
-[How are you solving it? Keep it fun!]
-
-## Technical Details
-### Technologies/Components Used
-For Software:
-- [Languages used]
-- [Frameworks used]
-- [Libraries used]
-- [Tools used]
-
-For Hardware:
-- [List main components]
-- [List specifications]
-- [List tools required]
-
-### Implementation
-For Software:
-# Installation
-[commands]
-
-# Run
-[commands]
-
-### Project Documentation
-For Software:
-
-# Screenshots (Add at least 3)
-![Screenshot1](Add screenshot 1 here with proper name)
-*Add caption explaining what this shows*
-
-![Screenshot2](Add screenshot 2 here with proper name)
-*Add caption explaining what this shows*
-
-![Screenshot3](Add screenshot 3 here with proper name)
-*Add caption explaining what this shows*
-
-# Diagrams
-![Workflow](Add your workflow/architecture diagram here)
-*Add caption explaining your workflow*
-
-For Hardware:
-
-# Schematic & Circuit
-![Circuit](Add your circuit diagram here)
-*Add caption explaining connections*
-
-![Schematic](Add your schematic diagram here)
-*Add caption explaining the schematic*
-
-# Build Photos
-![Components](Add photo of your components here)
-*List out all components shown*
-
-![Build](Add photos of build process here)
-*Explain the build steps*
-
-![Final](Add photo of final product here)
-*Explain the final build*
-
-### Project Demo
-# Video
-[Add your demo video link here]
-*Explain what the video demonstrates*
-
-# Additional Demos
-[Add any extra demo materials/links]
-
-## Team Contributions
-- [Name 1]: [Specific contributions]
-- [Name 2]: [Specific contributions]
-- [Name 3]: [Specific contributions]
+**Team Name:** MUNGIKKAPPAL
+**Team Lead:** Basil Sam Abraham — CUSAT
 
 ---
-Made with ❤️ at TinkerHub Useless Projects 
 
-![Static Badge](https://img.shields.io/badge/TinkerHub-24?color=%23000000&link=https%3A%2F%2Fwww.tinkerhub.org%2F)
-![Static Badge](https://img.shields.io/badge/UselessProjects--25-25?link=https%3A%2F%2Fwww.tinkerhub.org%2Fevents%2FQ2Q1TQKX6Q%2FUseless%2520Projects)
+## Project Description
+
+A fun web app that **counts how many sips you take to finish a glass/bottle of water**.
+It works in three modes:
+
+1. **Manual mode** — tap a button each time you sip.
+2. **Timer mode** — log sips automatically at set intervals.
+3. **Camera mode** — detects when you move a bottle/glass to your mouth and logs a sip automatically.
+
+Your sip history is displayed in a chart, stored locally, and can be exported as CSV.
+
+---
+
+## Problem
+
+Nobody actually *needs* to know how many sips they take… but what if you could?
+We solve the world’s most unnecessary hydration mystery.
+
+---
+
+## Solution
+
+We track each sip in real-time and show patterns over time.
+We even use **MediaPipe + TensorFlow object detection** to spot when you’re drinking, no button press required.
+
+---
+
+## Technologies / Components Used
+
+### Software
+
+* **Languages:** JavaScript (ES2022)
+* **Frameworks:** React (Vite)
+* **Libraries:**
+
+  * MediaPipe Hands + FaceMesh
+  * TensorFlow\.js + COCO-SSD (object detection)
+  * Recharts (charts)
+  * Tailwind CSS (styling)
+* **Tools:** Node.js, npm, Vite
+
+### Hardware
+
+* Laptop/PC with webcam
+
+---
+
+## Project Structure
+
+```
+water-sip-counter/
+├─ public/
+│  ├─ index.html
+│  ├─ screenshots/
+│  │  ├─ main-ui.png
+│  │  ├─ camera-detection.png
+│  │  └─ chart.png
+│  └─ diagrams/workflow.png
+├─ src/
+│  ├─ components/
+│  │  ├─ SipButton.jsx
+│  │  ├─ SipList.jsx
+│  │  ├─ SipChart.jsx
+│  │  ├─ CameraSipDetector.jsx
+│  │  └─ ToggleSwitch.jsx
+│  ├─ utils/
+│  │  ├─ calculateDistance.js
+│  │  └─ calculateTilt.js
+│  ├─ App.jsx
+│  ├─ main.jsx
+│  └─ index.css
+├─ package.json
+├─ vite.config.js
+└─ README.md
+```
+
+---
+
+## Installation
+
+```bash
+git clone https://github.com/<yourusername>/water-sip-counter.git
+cd water-sip-counter
+npm install
+```
+
+---
+
+## Run
+
+```bash
+npm run dev
+
+```
+
+---
+
+## How to Use
+
+1. **Manual mode** — Click the "Log Sip" button.
+2. **Timer mode** — Enter seconds, click "Start".
+3. **Camera mode** — Toggle camera on:
+
+   * Detects **glass/bottle in hand** + **movement toward mouth**.
+   * Logs a sip when conditions match.
+4. Export history via **"Export CSV"**.
+
+---
+
+## Implementation
+
+* **Detection**:
+
+  * COCO-SSD runs every **10 frames** to detect a bottle/cup.
+  * MediaPipe Hands tracks hand position.
+  * When the object is near mouth landmarks (FaceMesh), it counts as a sip.
+* **Cooldown**: 2 seconds between sips to avoid duplicates.
+* **Storage**: Sips are saved in `localStorage`.
+
+---
+
+## Screenshots
+
+![Main UI](public/screenshots/main-ui.png)
+
+
+---
 
 
 
+---
+
+## Team Contributions
+
+* **Basil Sam Abraham** — UI, camera detection logic, charting.
+
+---
+
+## Future Improvements
+
+* Mobile PWA support
+* Cloud sync
+* Better object detection for transparent cups
+
+---
+
+## License
+
+MIT License — free to use and modify.
+
+---
+
+If you want, I can now package **all source code for these components** exactly in this structure so you can run it right away in the hackathon.
+
+Do you want me to go ahead and write **the full working code** for `CameraSipDetector.jsx` with bottle detection + movement toward mouth? That’s the most technical part.

@@ -1,39 +1,81 @@
-/*
-  Water Glass Fill & Sip Counter — single-file React app
-
-  Why this rewrite?
-  - The original textdoc mixed Markdown and many separate file contents in a "code/react" document.
-  - The canvas preview/parser tried to parse non-JS (Markdown) as JS which caused: "SyntaxError: /: Unexpected token (2:0)".
-  - This file bundles everything into one valid React component (no stray Markdown) so the preview/build won't attempt to parse invalid tokens.
-
-  Usage:
-  - Copy this file into `src/App.jsx` of a Vite React project (or replace your current App.jsx) and render it.
-  - This single-file version has no external charting dependency — the chart is a tiny inline SVG-like bar view.
-  - It persists sips to localStorage, supports manual tap and an auto-timer, and exports CSV.
-
-  Notes for the hackathon:
-  - If you want the multi-file repo (with Recharts + Tailwind + Firebase), tell me and I'll recreate the separate files. For now this single-file approach avoids parsing issues.
-*/
-
 import React, { useEffect, useMemo, useRef, useState } from 'react'
+import { FaceMesh } from "@mediapipe/face_mesh"
+import { Camera } from "@mediapipe/camera_utils"
+import CameraSipDetector from './components/CameraSipDetector'
+import SipList from './components/SipList'
+
+// Simple head tilt calculation
+function calculateTilt(landmarks) {
+  if (!landmarks || landmarks.length === 0) return 0;
+  const nose = landmarks[1];       // Nose tip
+  const leftEar = landmarks[234];  // Left ear landmark
+  const rightEar = landmarks[454]; // Right ear landmark
+  const earMidZ = (leftEar.z + rightEar.z) / 2;
+  return nose.z - earMidZ; // positive = leaning back
+}
 
 export default function App() {
-  // data model: { id, timestamp (ms), method: 'tap'|'timer', volumeEstimate: number }
   const [sips, setSips] = useState(() => {
     try { return JSON.parse(localStorage.getItem('sips') || '[]') } catch (e) { return [] }
   })
   const [isTiming, setIsTiming] = useState(false)
-  const timerRef = useRef(null)
+  const [cameraEnabled, setCameraEnabled] = useState(true)
 
+  const timerRef = useRef(null)
+  const videoRef = useRef(null)
+  const lastSipTime = useRef(0)
+
+  // Save sips in localStorage
   useEffect(() => {
     localStorage.setItem('sips', JSON.stringify(sips))
   }, [sips])
 
+  // Cleanup on unmount
   useEffect(() => {
-    return () => { // cleanup on unmount
+    return () => { 
       if (timerRef.current) clearInterval(timerRef.current)
     }
   }, [])
+
+  // Camera detection setup
+  useEffect(() => {
+    if (!cameraEnabled) return;
+
+    const faceMesh = new FaceMesh({
+      locateFile: (file) =>
+        `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`,
+    });
+    faceMesh.setOptions({
+      maxNumFaces: 1,
+      refineLandmarks: true,
+      minDetectionConfidence: 0.5,
+      minTrackingConfidence: 0.5,
+    });
+
+    faceMesh.onResults((results) => {
+      if (!results.multiFaceLandmarks[0]) return;
+      const tilt = calculateTilt(results.multiFaceLandmarks[0]);
+      const now = Date.now();
+      if (tilt > 0.06 && now - lastSipTime.current > 2000) {
+        lastSipTime.current = now;
+        logSip('camera');
+      }
+    });
+
+    const camera = new Camera(videoRef.current, {
+      onFrame: async () => {
+        await faceMesh.send({ image: videoRef.current });
+      },
+      width: 640,
+      height: 480,
+    });
+
+    camera.start();
+
+    return () => {
+      camera.stop();
+    };
+  }, [cameraEnabled]);
 
   function logSip(method = 'tap', volume = 30){
     const entry = { id: Date.now() + Math.random(), timestamp: Date.now(), method, volumeEstimate: volume }
@@ -42,9 +84,7 @@ export default function App() {
 
   function clearAll(){ if (typeof window !== 'undefined' && confirm('Clear all sip history?')) setSips([]) }
 
-  // Timer auto-log every X seconds (intervalSec is number)
   function toggleTimer(intervalSec = 5){
-    // normalize
     const sec = Number(intervalSec) || 5
     if (isTiming){
       if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null }
@@ -68,6 +108,12 @@ export default function App() {
 
   return (
     <div style={styles.container}>
+      <video 
+        ref={videoRef}
+        style={{ display: 'none' }}
+        width="640"
+        height="480"
+      />
       <div style={styles.innerContainer}>
         <header style={styles.header}>
           <h1 style={styles.heading}>Water Glass Fill & Sip Counter</h1>
@@ -102,6 +148,7 @@ export default function App() {
             <div>
               <SipList sips={sips} />
             </div>
+            <CameraSipDetector onSipDetected={logSip} />
 
           </div>
         </main>
@@ -150,28 +197,7 @@ function SipButton({ onTap, onToggleTimer, isTiming }){
   )
 }
 
-function SipList({ sips }){
-  return (
-    <div style={{ marginTop: 16 }}>
-      <h4 style={{ margin: 0, fontSize: 15 }}>Recent sips</h4>
-      <ul style={{ listStyle: 'none', padding: 0, marginTop: 10, borderTop: '1px solid #f1f5f9' }}>
-        {sips.slice().reverse().map(s => (
-          <li key={s.id} style={{ padding: '10px 0', display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9' }}>
-            <div>
-              <div style={{ fontSize: 13, color: '#0f172a' }}>{new Date(s.timestamp).toLocaleString()}</div>
-              <div style={{ fontSize: 12, color: '#94a3b8' }}>{s.method} • ~{s.volumeEstimate}ml</div>
-            </div>
-            <div style={{ fontSize: 13, color: '#64748b' }}>{new Date(s.timestamp).toLocaleTimeString()}</div>
-          </li>
-        ))}
-        {sips.length === 0 && <li style={{ padding: 12, color: '#94a3b8' }}>No sips yet — tap to start!</li>}
-      </ul>
-    </div>
-  )
-}
-
 function SipChart({ sips }){
-  // aggregate by hour-string and show simple bars
   const data = useMemo(() => {
     const map = new Map()
     for (const s of sips){
@@ -181,7 +207,6 @@ function SipChart({ sips }){
       map.set(k, (map.get(k) || 0) + 1)
     }
     const arr = Array.from(map.entries()).map(([k, v]) => ({ time: new Date(k).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), sips: v }))
-    // keep chronological order
     return arr.sort((a,b) => new Date('1970-01-01T' + a.time) - new Date('1970-01-01T' + b.time)).slice(-24)
   }, [sips])
 
@@ -205,7 +230,6 @@ function SipChart({ sips }){
   )
 }
 
-// Styles
 const styles = {
   container: { fontFamily: 'Inter, system-ui, Arial', padding: 20, background: '#f8fafc', minHeight: '100vh' },
   innerContainer: { maxWidth: 920, margin: '0 auto' },
@@ -214,24 +238,10 @@ const styles = {
   subHeading: { marginTop: 6, color: '#475569' },
   main: { background: '#fff', borderRadius: 12, padding: 18, boxShadow: '0 6px 20px rgba(15,23,42,0.06)' },
   mainContent: { display: 'flex', gap: 20, flexDirection: 'column' },
-  buttonChartContainer: {
-    display: 'flex',
-    gap: 20,
-    alignItems: 'flex-start',
-    flexWrap: 'wrap',
-    '@media (max-width: 768px)': { // Example media query
-      flexDirection: 'column',
-    },
-  },
+  buttonChartContainer: { display: 'flex', gap: 20, alignItems: 'flex-start', flexWrap: 'wrap' },
   buttonContainer: { flex: 1, minWidth: 260 },
   exportClearContainer: { marginTop: 12, display: 'flex', gap: 10 },
-  chartContainer: {
-    width: 360,
-    minWidth: 240,
-    '@media (max-width: 768px)': { // Example media query
-      width: '100%',
-    },
-  },
+  chartContainer: { width: 360, minWidth: 240 },
   chartHeading: { margin: 0, fontSize: 16 },
   chart: { marginTop: 8 },
   footer: { marginTop: 12, color: '#64748b' },
