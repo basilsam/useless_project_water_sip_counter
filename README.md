@@ -1,21 +1,3 @@
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-# React + Vite
-
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
-
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
-=======
-<img width="3188" height="1202" alt="frame (3)" src="https://github.com/user-attachments/assets/517ad8e9-ad22-457d-9538-a9e62d137cd7" />
->>>>>>> 91a5f3bc99d4c91d64b5df64e634029a519b1604
 
 
 # Water Sip Counter 🎯
@@ -145,10 +127,11 @@ npm run dev
 * **Storage**: Sips are saved in `localStorage`.
 
 ---
-
+## video
+[![Demo Video](water-sip-counter/public/Screenshot%202025-08-09%20165611.png)](https://github.com/basilsam/useless_project_water_sip_counter/raw/main/water-sip-counter/public/video.mp4)
 ## Screenshots
 
-![Main UI](public/screenshots/main-ui.png)
+![Main UI](water-sip-counter/public/Screenshot%202025-08-09%20165611.png)
 
 
 ---
