@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+# React + Vite
+
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+
+Currently, two official plugins are available:
+
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+
+## Expanding the ESLint configuration
+
+If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+=======
+<img width="3188" height="1202" alt="frame (3)" src="https://github.com/user-attachments/assets/517ad8e9-ad22-457d-9538-a9e62d137cd7" />
+>>>>>>> 91a5f3bc99d4c91d64b5df64e634029a519b1604
 
 
 # Water Sip Counter 🎯
@@ -137,6 +155,7 @@ npm run dev
 
 
 
+<<<<<<< HEAD
 ---
 
 ## Team Contributions
@@ -162,3 +181,6 @@ MIT License — free to use and modify.
 If you want, I can now package **all source code for these components** exactly in this structure so you can run it right away in the hackathon.
 
 Do you want me to go ahead and write **the full working code** for `CameraSipDetector.jsx` with bottle detection + movement toward mouth? That’s the most technical part.
+=======
+>>>>>>> 87fcdae6c85af7d0d0b12e1167ee575a0cedd234
+>>>>>>> 91a5f3bc99d4c91d64b5df64e634029a519b1604
